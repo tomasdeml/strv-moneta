@@ -1,0 +1,35 @@
+{
+  "name": "strv-moneta",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "jwt-simple": "^0.2.0",
+    "passport": "^0.2.1",
+    "passport-http-bearer": "^1.0.1",
+    "restify": "^2.8.4"
+  },
+  "devDependencies": {
+    "jscs": "^1.10.0",
+    "jshint": "^2.5.11",
+    "jshint-full-path": "^1.1.1",
+    "mocha": "^2.1.0",
+    "should": "^4.6.1"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/jshint . --reporter=./node_modules/jshint-full-path/index.js",
+    "pretest": "npm run-script lint",
+    "test": "./node_modules/.bin/_mocha --recursive -R spec -r should",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tomasdeml/strv-moneta.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomasdeml/strv-moneta/issues"
+  },
+  "homepage": "https://github.com/tomasdeml/strv-moneta"
+}
