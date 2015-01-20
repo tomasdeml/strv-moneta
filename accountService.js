@@ -6,6 +6,10 @@ module.exports.exists = function exists(email) {
     return 'existing@example.org' === email;
 };
 
+module.exports.validateCredentials = function(email, password) {
+    return email === 'valid@example.org' && password === 'pass';
+};
+
 function hashPassword(password) {
     var salt = bcrypt.genSaltSync(10);
     return bcrypt.hashSync(password, salt);
@@ -13,6 +17,7 @@ function hashPassword(password) {
 
 module.exports.create = function(email, password) {
     var passwordHash = hashPassword(password);
+    // TODO
 };
 
 module.exports.generateToken = function(userId) {

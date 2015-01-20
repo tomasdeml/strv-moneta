@@ -5,7 +5,7 @@ var accountService = require('./accountService.js');
 
 function respondByGeneratingAccessToken(req, res, next) {
     "use strict";
-    if (req.params.email !== 'valid@example.org' || req.params.password !== 'pass') {
+    if (!accountService.validateCredentials(req.params.email, req.params.password)) {
         res.json(401, { type: 'InvalidEmailPassword', message: 'Specified e-mail / password combination is not valid.' });
     } else {
         var token = accountService.generateToken(666);
@@ -15,18 +15,14 @@ function respondByGeneratingAccessToken(req, res, next) {
 }
 
 function respondByCreatingUserAccount(req, res, next) {
-    "use strict";
-    var email = req.params.email;
-    var password = req.params.password;
-    
-    if (accountService.exists(email)) {
-        res.send(409);
-        next();
+    "use strict"; 
+    if (accountService.exists(req.params.email)) {
+        res.json(409, { type: 'EmailExists', message: 'Specified e-mail address is already registered.' });
     } else {
-        accountService.create(email, password);
+        accountService.create(req.params.email, req.params.password);
         res.send(201);
-        next();
     }
+    next();
 }
 
 var server = restify.createServer();
