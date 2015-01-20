@@ -17,6 +17,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Content Include="package.json" />
+    <Compile Include="accountService.js" />
     <Compile Include="server.js" />
     <Compile Include="test\test.js" />
   </ItemGroup>

@@ -1,32 +1,38 @@
 var restify = require('restify');
 var firebase = require("firebase");
-var jwt = require('jwt-simple');
 
-var accessTokenSecret = '6i2e{XM(KI?g3I0)jP# (^>8(1o0OY';
+var accountService = require('./accountService.js');
 
-function respondWithAccessToken(req, res, next) {
+function respondByGeneratingAccessToken(req, res, next) {
+    "use strict";
     if (req.params.email !== 'valid@example.org' || req.params.password !== 'pass') {
         res.json(401, { type: 'InvalidEmailPassword', message: 'Specified e-mail / password combination is not valid.' });
     } else {
-        var payload = { userId: 'bar' };
-        var token = jwt.encode(payload, accessTokenSecret);
-
+        var token = accountService.generateToken(666);
         res.json(200, { access_token: token });
     }
     next();
 }
 
-function respond(req, res, next) {
-    res.send('hello ' + req.params.name);
-    next();
+function respondByCreatingUserAccount(req, res, next) {
+    "use strict";
+    var email = req.params.email;
+    var password = req.params.password;
+    
+    if (accountService.exists(email)) {
+        res.send(409);
+        next();
+    } else {
+        accountService.create(email, password);
+        res.send(201);
+        next();
+    }
 }
 
 var server = restify.createServer();
 server.use(restify.bodyParser());
-server.post('/access_token', respondWithAccessToken);
-
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
+server.post('/access_token', respondByGeneratingAccessToken);
+server.post('/accounts', respondByCreatingUserAccount);
 
 server.listen(8080, function () {
     console.log('%s listening at %s', server.name, server.url);
