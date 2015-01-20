@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "firebase": "^2.1.1",
     "jwt-simple": "^0.2.0",
     "passport": "^0.2.1",
     "passport-http-bearer": "^1.0.1",
