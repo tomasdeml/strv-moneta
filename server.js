@@ -5,21 +5,18 @@ var jwt = require('jwt-simple');
 var accessTokenSecret = '6i2e{XM(KI?g3I0)jP# (^>8(1o0OY';
 
 function respondWithAccessToken(req, res, next) {
-    if (req.params.email != 'john@doe.org' || req.params.password != 'pass') {
+    if (req.params.email !== 'valid@example.org' || req.params.password !== 'pass') {
         res.json(401, { type: 'InvalidEmailPassword', message: 'Specified e-mail / password combination is not valid.' });
     } else {
         var payload = { userId: 'bar' };
         var token = jwt.encode(payload, accessTokenSecret);
 
-        res.json({ access_token: token });
+        res.json(200, { access_token: token });
     }
     next();
 }
 
 function respond(req, res, next) {
-    //var myFirebaseRef = new Firebase("https://<your-firebase>.firebaseio.com/");
-    
-    
     res.send('hello ' + req.params.name);
     next();
 }
