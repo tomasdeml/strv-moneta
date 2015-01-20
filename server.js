@@ -1,5 +1,7 @@
 var restify = require('restify');
-var firebase = require("firebase");
+var firebase = require('firebase');
+var passport = require('passport');
+var BearerStrategy = require('passport-http-bearer').Strategy;
 
 var accountService = require('./accountService.js');
 
@@ -15,7 +17,7 @@ function respondByGeneratingAccessToken(req, res, next) {
 }
 
 function respondByCreatingUserAccount(req, res, next) {
-    "use strict"; 
+    "use strict";
     if (accountService.exists(req.params.email)) {
         res.json(409, { type: 'EmailExists', message: 'Specified e-mail address is already registered.' });
     } else {
@@ -27,8 +29,22 @@ function respondByCreatingUserAccount(req, res, next) {
 
 var server = restify.createServer();
 server.use(restify.bodyParser());
+server.use(passport.initialize());
+
+passport.use(new BearerStrategy(
+    function (token, done) {
+        /*User.findOne({ token: token }, function (err, user) {
+            if (err) { return done(err); }
+            if (!user) { return done(null, false); }
+            return done(null, user, { scope: 'all' });
+        });*/
+        return done(null, token);
+    }
+));
+var bearerAuthentication = passport.authenticate('bearer', { session: false });
+
 server.post('/access_token', respondByGeneratingAccessToken);
-server.post('/accounts', respondByCreatingUserAccount);
+server.post('/accounts', bearerAuthentication, respondByCreatingUserAccount);
 
 server.listen(8080, function () {
     console.log('%s listening at %s', server.name, server.url);

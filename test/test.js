@@ -4,7 +4,8 @@ var restify = require('restify');
 describe('API', function () {
     var client = restify.createJsonClient({
         url: 'http://localhost:8080',
-        version: '*'
+        version: '*',
+        headers: { 'Authorization': 'Bearer dummy'}
     });
 
     describe('/accounts operation', function () {
