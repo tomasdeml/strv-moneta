@@ -29,22 +29,31 @@ function respondByCreatingUserAccount(req, res, next) {
 
 function respondByCreatingContact(req, res, next) {
     "use strict";
-
+    
     var rootRef = new firebase('https://resplendent-torch-5630.firebaseio.com/strv-moneta');
     var contactsRef = rootRef.child('contacts');
-    contactsRef.push({
+    var createdContactRef = contactsRef.push({
         firstName: req.params.firstName,
         lastName: req.params.lastName,
         phone: req.params.phone
     });
-
-    res.send(201);
     
+    res.send(201, { key: createdContactRef.key() });
     next();
+}
+
+
+function respondByUploadingPhoto(req, res, next) {
+    var fs = require('fs');
+    fs.createWriteStream('./out/test.png').pipe(req).on("end", function() {
+        res.send(201, req.query.contactId);
+        next();
+    });
 }
 
 var server = restify.createServer();
 server.use(restify.bodyParser());
+server.use(restify.queryParser());
 server.use(passport.initialize());
 
 passport.use(new BearerStrategy(
@@ -60,7 +69,7 @@ passport.use(new BearerStrategy(
         //}
         if (token === 'root')
             return done(null, token);
-
+        
         return done(null, false, { message: 'Incorrect creds' });
     }
 ));
@@ -69,6 +78,7 @@ var bearerAuthentication = passport.authenticate('bearer', { session: false });
 server.post('/access_token', respondByGeneratingAccessToken);
 server.post('/accounts', respondByCreatingUserAccount);
 server.post('/contacts', bearerAuthentication, respondByCreatingContact);
+server.post('/photos', bearerAuthentication, respondByUploadingPhoto);
 
 server.listen(8080, function () {
     console.log('%s listening at %s', server.name, server.url);

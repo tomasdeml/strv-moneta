@@ -2,12 +2,16 @@ var assert = require('should');
 var restify = require('restify');
 
 describe('API', function () {
+    var protocol = 'http';
+    var host = 'localhost';
+    var port = 8080;
+    
     var client = restify.createJsonClient({
-        url: 'http://localhost:8080',
+        url: protocol + '://' + host + ':' + port,
         version: '*',
-        headers: { 'Authorization': 'Bearer root'}
+        headers: { 'Authorization': 'Bearer root' }
     });
-
+    
     describe('/accounts operation', function () {
         var accountsOperationUri = '/accounts';
         
@@ -79,7 +83,7 @@ describe('API', function () {
             });
         });
     });
-
+    
     describe('/contacts operation', function () {
         var contactsOperationUri = '/contacts';
         
@@ -92,6 +96,59 @@ describe('API', function () {
                     done();
                 });
             });
-        }); 
+            
+            it('should return a key for the created contact', function (done) {
+                client.post(contactsOperationUri, contact, function (err, req, res, obj) {
+                    obj.should.have.property('key');
+                    done();
+                });
+            });
+        });
+    });
+    
+    describe('/photos operation', function () {
+        var photosOperationUri = '/photos?contactId=';
+        
+        describe('when passed a contact', function () {
+            it('sdfge', function (done) {
+                var options = {
+                    host: host,
+                    port: port,
+                    path: photosOperationUri + Math.random(),
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'multipart/form-data; boundary=XXX',
+                        'Authorization': 'Bearer root'
+                    }
+                };
+                
+                var http = require('http');
+                var postReq = http.request(options, function (res) {
+                    res.statusCode.should.equal(201);
+                    res.on('data', function (chunk) {
+                        console.log('Response: ' + chunk);
+                    });
+                    res.on('end', function () {
+                        done();
+                    });
+                });
+                
+                postReq.write('--XXX--\r\n');
+                postReq.write('Content-Disposition: form-data; name="name"\r\n');
+                postReq.write('\r\n');
+                
+                var fs = require('fs');
+                var stream = fs.createReadStream('./test/TestFile.jpg');
+                
+                stream.on('data', function (data) {
+                    postReq.write(data);
+                });
+                
+                stream.on('end', function () {
+                    postReq.write('\r\n--XXX--');
+                    postReq.end();
+                });
+            });
+        });
     });
 });
