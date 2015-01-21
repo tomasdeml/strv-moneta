@@ -27,24 +27,48 @@ function respondByCreatingUserAccount(req, res, next) {
     next();
 }
 
+function respondByCreatingContact(req, res, next) {
+    "use strict";
+
+    var rootRef = new firebase('https://resplendent-torch-5630.firebaseio.com/strv-moneta');
+    var contactsRef = rootRef.child('contacts');
+    contactsRef.push({
+        firstName: req.params.firstName,
+        lastName: req.params.lastName,
+        phone: req.params.phone
+    });
+
+    res.send(201);
+    
+    next();
+}
+
 var server = restify.createServer();
 server.use(restify.bodyParser());
 server.use(passport.initialize());
 
 passport.use(new BearerStrategy(
     function (token, done) {
-        /*User.findOne({ token: token }, function (err, user) {
-            if (err) { return done(err); }
-            if (!user) { return done(null, false); }
-            return done(null, user, { scope: 'all' });
-        });*/
-        return done(null, token);
+        //if (err) {
+        //    return done(err);
+        //}
+        //if (!user) {
+        //    return done(null, false, { message: 'Incorrect username.' });
+        //}
+        //if (user.password !== password) {
+        //    return done(null, false, { message: 'Incorrect password.' });
+        //}
+        if (token === 'root')
+            return done(null, token);
+
+        return done(null, false, { message: 'Incorrect creds' });
     }
 ));
 var bearerAuthentication = passport.authenticate('bearer', { session: false });
 
 server.post('/access_token', respondByGeneratingAccessToken);
-server.post('/accounts', bearerAuthentication, respondByCreatingUserAccount);
+server.post('/accounts', respondByCreatingUserAccount);
+server.post('/contacts', bearerAuthentication, respondByCreatingContact);
 
 server.listen(8080, function () {
     console.log('%s listening at %s', server.name, server.url);

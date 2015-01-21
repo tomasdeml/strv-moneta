@@ -5,7 +5,7 @@ describe('API', function () {
     var client = restify.createJsonClient({
         url: 'http://localhost:8080',
         version: '*',
-        headers: { 'Authorization': 'Bearer dummy'}
+        headers: { 'Authorization': 'Bearer root'}
     });
 
     describe('/accounts operation', function () {
@@ -78,5 +78,20 @@ describe('API', function () {
                 });
             });
         });
+    });
+
+    describe('/contacts operation', function () {
+        var contactsOperationUri = '/contacts';
+        
+        describe('when passed a contact', function () {
+            var contact = { firstName: 'John', lastName: 'Doe', phone: '555-123-456' };
+            
+            it('should return HTTP 201 Created', function (done) {
+                client.post(contactsOperationUri, contact, function (err, req, res, obj) {
+                    res.statusCode.should.equal(201);
+                    done();
+                });
+            });
+        }); 
     });
 });
