@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "azure-storage": "^0.4.2",
     "bcrypt-nodejs": "0.0.3",
     "firebase": "^2.1.1",
     "jwt-simple": "^0.2.0",
