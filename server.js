@@ -43,8 +43,17 @@ function respondByCreatingContact(req, res, next) {
     res.send(201, { key: createdContactRef.key() });
     next();
 }
- 
-function respondByUploadingPhoto(req, res, next) {
+
+var parseBodyAndRespondByUploadingPhoto = restify.bodyParser({
+    multipartHandler: function(part) {
+        part.on('data', function(data) {
+            var fs = require('fs');
+            fs.writeFile('./out.png', data);
+        });
+    }
+});
+
+function respondByUploadingPhotoxxx(req, res, next) {
     var blobSvc = azure.createBlobService();
     blobSvc.createContainerIfNotExists('photoscontainer', function (containerError, containerCreated, containerResponse) {
         if (!containerError) {
@@ -65,8 +74,9 @@ function respondByUploadingPhoto(req, res, next) {
     
 }
 
+var parseBody = restify.bodyParser();
+
 var server = restify.createServer();
-server.use(restify.bodyParser());
 server.use(restify.queryParser());
 server.use(passport.initialize());
 
@@ -87,12 +97,12 @@ passport.use(new BearerStrategy(
         return done(null, false, { message: 'Incorrect creds' });
     }
 ));
-var bearerAuthentication = passport.authenticate('bearer', { session: false });
+var authenticate = passport.authenticate('bearer', { session: false });
 
-server.post('/access_token', respondByGeneratingAccessToken);
-server.post('/accounts', respondByCreatingUserAccount);
-server.post('/contacts', bearerAuthentication, respondByCreatingContact);
-server.post('/photos', bearerAuthentication, respondByUploadingPhoto);
+server.post('/access_token', parseBody, respondByGeneratingAccessToken);
+server.post('/accounts', parseBody, respondByCreatingUserAccount);
+server.post('/contacts', authenticate, parseBody, respondByCreatingContact);
+server.post('/photos', authenticate, parseBodyAndRespondByUploadingPhoto);
 
 var port = process.env.PORT || 8080;
 server.listen(port, function () {

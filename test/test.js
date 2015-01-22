@@ -7,7 +7,7 @@ var port = process.env.monetaPort || 8080;
 
 describe('API', function () {
     this.timeout(5000); // Because of Azure -> Firebase lags
-
+    
     var client = restify.createJsonClient({
         url: protocol + '://' + host + ':' + port,
         version: '*',
@@ -110,10 +110,10 @@ describe('API', function () {
     
     describe('/photos operation', function () {
         var photosOperationUri = '/photos?contactId=';
-
+        
         describe('when posted a photo data blob', function () {
             it('should return HTTP 201 Created', function (done) {
-                var options = {
+                var options = {,
                     host: host,
                     port: port,
                     path: photosOperationUri + Math.random(),
@@ -135,21 +135,26 @@ describe('API', function () {
                     });
                 });
                 
-                postReq.write('--XXX--\r\n');
+                postReq.write('--XXX\r\n');
                 postReq.write('Content-Disposition: form-data; name="name"\r\n');
+                postReq.write('Content-Encoding: base64\r\n');
                 postReq.write('\r\n');
+                
+                postReq.write(new Buffer("Hello World").toString('base64'));
+                postReq.write('\r\n--XXX--');
+                postReq.end();
                 
                 var fs = require('fs');
                 var stream = fs.createReadStream('./test/TestFile.jpg');
                 
-                stream.on('data', function (data) {
+                /*stream.on('data', function (data) {
                     postReq.write(data);
                 });
                 
                 stream.on('end', function () {
                     postReq.write('\r\n--XXX--');
                     postReq.end();
-                });
+                });*/
             });
         });
     });
