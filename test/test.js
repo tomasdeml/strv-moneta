@@ -1,11 +1,13 @@
 var assert = require('should');
 var restify = require('restify');
 
+var protocol = 'http';
+var host = process.env.monetaHost || 'localhost';
+var port = process.env.monetaPort || 8080;
+
 describe('API', function () {
-    var protocol = 'http';
-    var host = 'localhost';
-    var port = 8080;
-    
+    this.timeout(5000); // Because of Azure -> Firebase lags
+
     var client = restify.createJsonClient({
         url: protocol + '://' + host + ':' + port,
         version: '*',
@@ -108,7 +110,7 @@ describe('API', function () {
     
     describe('/photos operation', function () {
         var photosOperationUri = '/photos?contactId=';
-        
+
         describe('when posted a photo data blob', function () {
             it('should return HTTP 201 Created', function (done) {
                 var options = {
