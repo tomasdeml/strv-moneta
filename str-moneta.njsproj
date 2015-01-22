@@ -24,7 +24,6 @@
     <Compile Include="test\test.js" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="coverage" />
     <Folder Include="test" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
