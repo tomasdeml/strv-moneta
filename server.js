@@ -3,6 +3,8 @@ var firebase = require('firebase');
 var passport = require('passport');
 var BearerStrategy = require('passport-http-bearer').Strategy;
 
+var azure = require('azure-storage'); // TODO REFACTOR
+
 var accountService = require('./accountService.js');
 
 function respondByGeneratingAccessToken(req, res, next) {
@@ -41,14 +43,26 @@ function respondByCreatingContact(req, res, next) {
     res.send(201, { key: createdContactRef.key() });
     next();
 }
-
-
+ 
 function respondByUploadingPhoto(req, res, next) {
-    var fs = require('fs');
-    fs.createWriteStream('./out/test.png').pipe(req).on("end", function() {
-        res.send(201, req.query.contactId);
-        next();
+    var blobSvc = azure.createBlobService();
+    blobSvc.createContainerIfNotExists('photoscontainer', function (containerError, containerCreated, containerResponse) {
+        if (!containerError) {
+            blobSvc.createBlockBlobFromStream('photoscontainer', 'contact-' + req.params.contactId, req, function(blobError, etag, blobResponse) {
+                if (!blobError) {
+                    res.send(201);
+                    next();
+                } else {
+                    res.send(500);
+                    next();
+                }
+            });
+        } else {
+            res.send(500);
+            next();
+        }
     });
+    
 }
 
 var server = restify.createServer();
