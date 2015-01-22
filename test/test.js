@@ -109,8 +109,8 @@ describe('API', function () {
     describe('/photos operation', function () {
         var photosOperationUri = '/photos?contactId=';
         
-        describe('when passed a contact', function () {
-            it('sdfge', function (done) {
+        describe('when posted a photo data blob', function () {
+            it('should return HTTP 201 Created', function (done) {
                 var options = {
                     host: host,
                     port: port,
