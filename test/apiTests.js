@@ -15,13 +15,13 @@ describe('API', function () {
         headers: {
              'Authorization': authorizationToken
         }
-    });
+    }); 
     
     describe('/accounts operation', function () {
         var accountsOperationUri = '/accounts';
         
         describe('when passed unique credentials', function () {
-            var freshAccount = { email: (Math.random() + '@example.org'), password: 'pass' };
+            var freshAccount = { email: (new Date().getTime() + '@example.org'), password: 'pass' };
             
             it('should return HTTP 201 Created', function (done) {
                 client.post(accountsOperationUri, freshAccount, function (err, req, res, obj) {
@@ -100,8 +100,8 @@ describe('API', function () {
                 });
             });
         });
-    });
-    
+    }); 
+
     describe('/photos operation', function () {
         var photosOperationUri = '/photos?contactId=';
         
@@ -110,7 +110,7 @@ describe('API', function () {
                 var options = {
                     host: host,
                     port: port,
-                    path: photosOperationUri + Math.random(),
+                    path: photosOperationUri + new Date().getTime(),
                     method: 'POST',
                     headers: {
                         'Content-Type': 'multipart/form-data; boundary=XXX',

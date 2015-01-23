@@ -15,6 +15,7 @@ var sqlServerConfig = {
 };
 
 module.exports.exists = function exists(email, callback) {
+    "use strict";
     var connection = new Connection(sqlServerConfig);
     
     connection.on('connect', function (connectionError) {
@@ -44,6 +45,7 @@ module.exports.exists = function exists(email, callback) {
 };
 
 module.exports.validateCredentials = function (email, password, callback) {
+    "use strict";
     var connection = new Connection(sqlServerConfig);
     
     connection.on('connect', function (connectionError) {
@@ -77,6 +79,7 @@ module.exports.validateCredentials = function (email, password, callback) {
 };
 
 module.exports.create = function (email, password, callback) {
+    "use strict";
     Password.hash(password, function (error, passwordHash) {
         if (error) {
             callback(error);

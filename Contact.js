@@ -2,6 +2,7 @@
 var validator = require('validator');
 
 module.exports.create = function (firstName, lastName, phone, callback) {
+    "use strict";
     var rootRef = new firebase(process.env.FIREBASE_CONTACTS_URL);
     var contactsRef = rootRef.child('contacts');
     var contact = {
