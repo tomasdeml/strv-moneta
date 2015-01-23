@@ -7,12 +7,13 @@ var port = process.env.monetaPort || 8080;
 
 describe('API', function () {
     this.timeout(10000);
+    var authorizationToken = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InZhbGlkQGV4YW1wbGUub3JnIn0.Bpa9Tuso_gmR04-GMnqqtATLpTmqn5u1pksjrVW3H-E';
 
     var client = restify.createJsonClient({
         url: protocol + '://' + host + ':' + port,
         version: '*',
         headers: {
-             'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InZhbGlkQGV4YW1wbGUub3JnIn0.Bpa9Tuso_gmR04-GMnqqtATLpTmqn5u1pksjrVW3H-E'
+             'Authorization': authorizationToken
         }
     });
     
@@ -98,13 +99,6 @@ describe('API', function () {
                     done();
                 });
             });
-            
-            it('should return a key for the created contact', function (done) {
-                client.post(contactsOperationUri, contact, function (err, req, res, obj) {
-                    obj.should.have.property('key');
-                    done();
-                });
-            });
         });
     });
     
@@ -120,7 +114,7 @@ describe('API', function () {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'multipart/form-data; boundary=XXX',
-                        'Authorization': 'Bearer root'
+                        'Authorization': authorizationToken
                     }
                 };
                 
