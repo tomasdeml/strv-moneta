@@ -7,6 +7,7 @@
     "azure-storage": "^0.4.2",
     "bcrypt-nodejs": "0.0.3",
     "firebase": "^2.1.1",
+    "formidable": "^1.0.16",
     "jwt-simple": "^0.2.0",
     "passport": "^0.2.1",
     "passport-http-bearer": "^1.0.1",

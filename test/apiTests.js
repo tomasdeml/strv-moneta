@@ -130,25 +130,13 @@ describe('API', function () {
                 });
                 
                 postReq.write('--XXX\r\n');
-                postReq.write('Content-Disposition: form-data; name="name"\r\n');
+                postReq.write('Content-Disposition: form-data; filename="name"\r\n');
                 postReq.write('Content-Encoding: base64\r\n');
                 postReq.write('\r\n');
                 
-                postReq.write(new Buffer("Hello World").toString('base64'));
+                postReq.write(new Buffer('Just testing...').toString('base64'));
                 postReq.write('\r\n--XXX--');
                 postReq.end();
-                
-                var fs = require('fs');
-                var stream = fs.createReadStream('./test/TestFile.jpg');
-                
-                /*stream.on('data', function (data) {
-                    postReq.write(data);
-                });
-                
-                stream.on('end', function () {
-                    postReq.write('\r\n--XXX--');
-                    postReq.end();
-                });*/
             });
         });
     });

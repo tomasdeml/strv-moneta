@@ -1,11 +1,11 @@
 var restify = require('restify');
 var passport = require('passport');
 var BearerStrategy = require('passport-http-bearer').Strategy;
-
-var azure = require('azure-storage'); // TODO REFACTOR
+var formidable = require('formidable');
 
 var UserAccount = require('./UserAccount.js');
 var Contact = require('./Contact.js');
+var ContactPhoto = require('./ContactPhoto.js');
 var AuthToken = require('./AuthToken.js');
 
 function respondWithServerError(res) {
@@ -33,8 +33,7 @@ function respondByCreatingUserAccount(req, res, next) {
         if (existsError) {
             respondWithServerError(res);
             next();
-        }
-        else if (userExists) {
+        } else if (userExists) {
             res.json(409, { type: 'EmailExists', message: 'Specified e-mail address is already registered.' });
             next();
         } else {
@@ -51,7 +50,7 @@ function respondByCreatingUserAccount(req, res, next) {
 }
 
 function respondByCreatingContact(req, res, next) {
-    "use strict"; 
+    "use strict";
     Contact.create(req.params.firstName, req.params.lastName, req.params.phone, function (error) {
         if (error) {
             respondWithServerError(res);
@@ -62,35 +61,31 @@ function respondByCreatingContact(req, res, next) {
     });
 }
 
-var parseBodyAndRespondByUploadingPhoto = restify.bodyParser({
-    multipartHandler: function (part) {
-        part.on('data', function (data) {
-            var fs = require('fs');
-            fs.writeFile('./out.png', data);
-        });
-    }
-});
-
-function respondByUploadingPhotoxxx(req, res, next) {
+var parseBodyAndRespondByUploadingPhoto = function(req, res, next) {
     "use strict";
-    var blobSvc = azure.createBlobService();
-    blobSvc.createContainerIfNotExists('photoscontainer', function (containerError, containerCreated, containerResponse) {
-        if (!containerError) {
-            blobSvc.createBlockBlobFromStream('photoscontainer', 'contact-' + req.params.contactId, req, function (blobError, etag, blobResponse) {
-                if (!blobError) {
-                    res.send(201);
-                    next();
-                } else {
-                    res.send(500);
-                    next();
-                }
-            });
-        } else {
-            res.send(500);
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(error, fields, files) {
+        if (error) {
+            respondWithServerError(res);
             next();
+        } else {
+            Object.keys(files).forEach(function(f) {
+                var file = files[f];
+                var fs = require('fs');
+                var stream = fs.openSync(file.path, 'r');
+                ContactPhoto.upload(req.params.contactId, stream, file.size, function(uploadError) {
+                    if (uploadError) {
+                        respondWithServerError(res);
+                        next();
+                    } else {
+                        res.send(201);
+                        next();
+                    }
+                });
+            });
         }
-    }); 
-}
+    });
+};
 
 var parseBody = restify.bodyParser();
 
