@@ -20,7 +20,7 @@ function respondByGeneratingAccessToken(req, res, next) {
         } else if (!isValid) {
             res.json(401, { type: 'InvalidEmailPassword', message: 'Specified e-mail / password combination is not valid.' });
         } else {
-            var token = AuthToken.generateToken(req.params.email);
+            var token = AuthToken.generate(req.params.email);
             res.json(200, { access_token: token });
         }
         next();
@@ -105,19 +105,20 @@ server.use(passport.initialize());
 
 passport.use(new BearerStrategy(
     function (token, done) {
-        //if (err) {
-        //    return done(err);
-        //}
-        //if (!user) {
-        //    return done(null, false, { message: 'Incorrect username.' });
-        //}
-        //if (user.password !== password) {
-        //    return done(null, false, { message: 'Incorrect password.' });
-        //}
-        if (token === 'root')
-            return done(null, token);
+        var decodedEmail = AuthToken.decode(token);
         
-        return done(null, false, { message: 'Incorrect creds' });
+        if (!decodedEmail) {
+            done(null, false, { message: 'Invalid token.' });
+            return;
+        }
+        
+        UserAccount.exists(decodedEmail, function(error, result) {
+            if (result) {
+                done(null, decodedEmail);
+            } else {
+                done(null, false, { message: 'Invalid email' });
+            }
+        });
     }
 ));
 var authenticate = passport.authenticate('bearer', { session: false });

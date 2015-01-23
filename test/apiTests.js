@@ -6,12 +6,14 @@ var host = process.env.monetaHost || 'localhost';
 var port = process.env.monetaPort || 8080;
 
 describe('API', function () {
-    this.timeout(10000); 
-    
+    this.timeout(10000);
+
     var client = restify.createJsonClient({
         url: protocol + '://' + host + ':' + port,
         version: '*',
-        headers: { 'Authorization': 'Bearer root' }
+        headers: {
+             'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InZhbGlkQGV4YW1wbGUub3JnIn0.Bpa9Tuso_gmR04-GMnqqtATLpTmqn5u1pksjrVW3H-E'
+        }
     });
     
     describe('/accounts operation', function () {
