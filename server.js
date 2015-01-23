@@ -5,28 +5,49 @@ var BearerStrategy = require('passport-http-bearer').Strategy;
 
 var azure = require('azure-storage'); // TODO REFACTOR
 
-var accountService = require('./accountService.js');
+var UserAccount = require('./UserAccount.js');
+var AuthToken = require('./AuthToken.js');
+
+function respondWithServerError(res) {
+    res.json(500, { type: 'InternalServerError', message: 'Unspecified error occured.' });
+}
 
 function respondByGeneratingAccessToken(req, res, next) {
     "use strict";
-    if (!accountService.validateCredentials(req.params.email, req.params.password)) {
-        res.json(401, { type: 'InvalidEmailPassword', message: 'Specified e-mail / password combination is not valid.' });
-    } else {
-        var token = accountService.generateToken(666);
-        res.json(200, { access_token: token });
-    }
-    next();
+    UserAccount.validateCredentials(req.params.email, req.params.password, function (error, isValid) {
+        if (error) {
+            respondWithServerError(res);
+        } else if (!isValid) {
+            res.json(401, { type: 'InvalidEmailPassword', message: 'Specified e-mail / password combination is not valid.' });
+        } else {
+            var token = AuthToken.generateToken(req.params.email);
+            res.json(200, { access_token: token });
+        }
+        next();
+    });
 }
 
 function respondByCreatingUserAccount(req, res, next) {
     "use strict";
-    if (accountService.exists(req.params.email)) {
-        res.json(409, { type: 'EmailExists', message: 'Specified e-mail address is already registered.' });
-    } else {
-        accountService.create(req.params.email, req.params.password);
-        res.send(201);
-    }
-    next();
+    UserAccount.exists(req.params.email, function (existsError, userExists) {
+        if (existsError) {
+            respondWithServerError(res);
+            next();
+        }
+        else if (userExists) {
+            res.json(409, { type: 'EmailExists', message: 'Specified e-mail address is already registered.' });
+            next();
+        } else {
+            UserAccount.create(req.params.email, req.params.password, function (createError) {
+                if (createError) {
+                    respondWithServerError(res);
+                } else {
+                    res.send(201);
+                }
+                next();
+            });
+        }
+    });
 }
 
 function respondByCreatingContact(req, res, next) {
@@ -45,8 +66,8 @@ function respondByCreatingContact(req, res, next) {
 }
 
 var parseBodyAndRespondByUploadingPhoto = restify.bodyParser({
-    multipartHandler: function(part) {
-        part.on('data', function(data) {
+    multipartHandler: function (part) {
+        part.on('data', function (data) {
             var fs = require('fs');
             fs.writeFile('./out.png', data);
         });
@@ -54,10 +75,12 @@ var parseBodyAndRespondByUploadingPhoto = restify.bodyParser({
 });
 
 function respondByUploadingPhotoxxx(req, res, next) {
+    "use strict";
+    
     var blobSvc = azure.createBlobService();
     blobSvc.createContainerIfNotExists('photoscontainer', function (containerError, containerCreated, containerResponse) {
         if (!containerError) {
-            blobSvc.createBlockBlobFromStream('photoscontainer', 'contact-' + req.params.contactId, req, function(blobError, etag, blobResponse) {
+            blobSvc.createBlockBlobFromStream('photoscontainer', 'contact-' + req.params.contactId, req, function (blobError, etag, blobResponse) {
                 if (!blobError) {
                     res.send(201);
                     next();

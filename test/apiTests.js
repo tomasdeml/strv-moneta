@@ -6,7 +6,7 @@ var host = process.env.monetaHost || 'localhost';
 var port = process.env.monetaPort || 8080;
 
 describe('API', function () {
-    this.timeout(5000); // Because of Azure -> Firebase lags
+    this.timeout(10000); 
     
     var client = restify.createJsonClient({
         url: protocol + '://' + host + ':' + port,
@@ -17,7 +17,7 @@ describe('API', function () {
     describe('/accounts operation', function () {
         var accountsOperationUri = '/accounts';
         
-        describe('when passed fresh credentials', function () {
+        describe('when passed unique credentials', function () {
             var freshAccount = { email: (Math.random() + '@example.org'), password: 'pass' };
             
             it('should return HTTP 201 Created', function (done) {
@@ -29,7 +29,7 @@ describe('API', function () {
         });
         
         describe('when passed existing credentials', function () {
-            var existingAccount = { email: 'existing@example.org', password: 'pass' };
+            var existingAccount = { email: 'valid@example.org', password: 'pass' };
             
             it('should return HTTP 409 Conflict', function (done) {
                 client.post(accountsOperationUri, existingAccount, function (err, req, res, obj) {
@@ -49,8 +49,6 @@ describe('API', function () {
             it('should return HTTP 401 Unauthorized', function (done) {
                 client.post(accessTokenOperationUri, invalidCredentials, function (err, req, res, obj) {
                     res.statusCode.should.equal(401);
-                    /*console.log('%d -> %j', res.statusCode, res.headers);
-                console.log('%j', obj);*/
                     done();
                 });
             });
@@ -113,7 +111,7 @@ describe('API', function () {
         
         describe('when posted a photo data blob', function () {
             it('should return HTTP 201 Created', function (done) {
-                var options = {,
+                var options = {
                     host: host,
                     port: port,
                     path: photosOperationUri + Math.random(),
