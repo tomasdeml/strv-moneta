@@ -7,7 +7,7 @@ module.exports.upload = function(contactId, stream, streamLength, callback) {
         if (containerError) {
             callback(containerError);
         } else {
-            blobSvc.createBlockBlobFromStream('photoscontainer', 'contact-' + req.params.contactId, stream, streamLength, function(blobError) {
+            blobSvc.createBlockBlobFromStream('photoscontainer', 'contact-' + contactId, stream, streamLength, function(blobError) {
                 if (blobError) {
                     callback(blobError);
                 } else {

@@ -61,7 +61,7 @@ function respondByCreatingContact(req, res, next) {
     });
 }
 
-var parseBodyAndRespondByUploadingPhoto = function(req, res, next) {
+function parseBodyAndRespondByUploadingContactPhoto(req, res, next) {
     "use strict";
     var form = new formidable.IncomingForm();
     form.parse(req, function(error, fields, files) {
@@ -85,7 +85,7 @@ var parseBodyAndRespondByUploadingPhoto = function(req, res, next) {
             });
         }
     });
-};
+}
 
 var parseBody = restify.bodyParser();
 
@@ -116,7 +116,7 @@ var authenticate = passport.authenticate('bearer', { session: false });
 server.post('/access_token', parseBody, respondByGeneratingAccessToken);
 server.post('/accounts', parseBody, respondByCreatingUserAccount);
 server.post('/contacts', authenticate, parseBody, respondByCreatingContact);
-server.post('/photos', authenticate, parseBodyAndRespondByUploadingPhoto);
+server.post('/photos', authenticate, parseBodyAndRespondByUploadingContactPhoto);
 
 var port = process.env.PORT || 8080;
 server.listen(port, function () {
