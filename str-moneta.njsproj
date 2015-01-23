@@ -19,6 +19,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Content Include="package.json" />
+    <Compile Include="Contact.js" />
     <Compile Include="UserAccount.js" />
     <Compile Include="AuthToken.js" />
     <Compile Include="Password.js" />

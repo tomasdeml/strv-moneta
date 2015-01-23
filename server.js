@@ -1,11 +1,11 @@
 var restify = require('restify');
-var firebase = require('firebase');
 var passport = require('passport');
 var BearerStrategy = require('passport-http-bearer').Strategy;
 
 var azure = require('azure-storage'); // TODO REFACTOR
 
 var UserAccount = require('./UserAccount.js');
+var Contact = require('./Contact.js');
 var AuthToken = require('./AuthToken.js');
 
 function respondWithServerError(res) {
@@ -51,18 +51,15 @@ function respondByCreatingUserAccount(req, res, next) {
 }
 
 function respondByCreatingContact(req, res, next) {
-    "use strict";
-    
-    var rootRef = new firebase('https://resplendent-torch-5630.firebaseio.com/strv-moneta');
-    var contactsRef = rootRef.child('contacts');
-    var createdContactRef = contactsRef.push({
-        firstName: req.params.firstName,
-        lastName: req.params.lastName,
-        phone: req.params.phone
+    "use strict"; 
+    Contact.create(req.params.firstName, req.params.lastName, req.params.phone, function (error) {
+        if (error) {
+            respondWithServerError(res);
+        } else {
+            res.send(201);
+        }
+        next();
     });
-    
-    res.send(201, { key: createdContactRef.key() });
-    next();
 }
 
 var parseBodyAndRespondByUploadingPhoto = restify.bodyParser({
@@ -76,7 +73,6 @@ var parseBodyAndRespondByUploadingPhoto = restify.bodyParser({
 
 function respondByUploadingPhotoxxx(req, res, next) {
     "use strict";
-    
     var blobSvc = azure.createBlobService();
     blobSvc.createContainerIfNotExists('photoscontainer', function (containerError, containerCreated, containerResponse) {
         if (!containerError) {
@@ -93,8 +89,7 @@ function respondByUploadingPhotoxxx(req, res, next) {
             res.send(500);
             next();
         }
-    });
-    
+    }); 
 }
 
 var parseBody = restify.bodyParser();
@@ -112,7 +107,7 @@ passport.use(new BearerStrategy(
             return;
         }
         
-        UserAccount.exists(decodedEmail, function(error, result) {
+        UserAccount.exists(decodedEmail, function (error, result) {
             if (result) {
                 done(null, decodedEmail);
             } else {

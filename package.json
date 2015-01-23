@@ -11,7 +11,8 @@
     "passport": "^0.2.1",
     "passport-http-bearer": "^1.0.1",
     "restify": "^2.8.4",
-    "tedious": "^1.8.1"
+    "tedious": "^1.8.1",
+    "validator": "^3.27.0"
   },
   "devDependencies": {
     "jscs": "^1.10.0",
